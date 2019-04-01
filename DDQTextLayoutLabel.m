@@ -58,6 +58,13 @@
     
 }
 
+- (void)sizeToFit {
+    
+    CGSize fitSize = [self sizeThatFits:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)];
+    self.frame = CGRectMake(0.0, 0.0, fitSize.width, fitSize.height);
+    
+}
+
 - (CGSize)sizeThatFits:(CGSize)size {
     
     CGSize boundSize = CGSizeZero;

@@ -122,6 +122,29 @@ static const char * DefaultTextColorKey = "defaultTextColor";
     }
 }
 
+- (void)ddq_removeSubviewsWithClass:(Class)vClass {
+ 
+    if (!vClass || ![vClass isSubclassOfClass:[UIView class]]) {
+        
+        return;
+        
+    }
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"class == %@", vClass];
+    NSArray<__kindof UIView *> *views = [self.subviews filteredArrayUsingPredicate:predicate];
+    [views enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        
+        [obj removeFromSuperview];
+        
+    }];
+}
+
+- (void)ddq_removeAllSubviews {
+    
+    [self removeAllSubviews];
+    
+}
+
 @end
 
 

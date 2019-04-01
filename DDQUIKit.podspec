@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "DDQUIKit"
-  s.version      = "1.0.0"
+  s.version      = "1.0.1"
   s.ios.deployment_target = '8.0'
   s.summary      = "各种常用控件的基类"
   s.homepage     = "https://github.com/MyNameDDQ/DDQUIKit"
@@ -10,7 +10,6 @@ Pod::Spec.new do |s|
   s.source       = { :git => 'https://github.com/MyNameDDQ/DDQUIKit.git', :tag => s.version}
   s.requires_arc = true
   s.source_files = '*.{h,m}'
-  s.public_header_files = 'DDQUIKitHeader.h'
  
   s.dependency 'YYKit'
   s.dependency 'MJRefresh'

@@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)ddq_addSubviews:(nullable NSArray<__kindof UIView *> *)subviews;
 - (void)ddq_removeSubviews:(nullable NSArray<__kindof UIView *> *)subviews;
+- (void)ddq_removeSubviewsWithClass:(Class)vClass NS_AVAILABLE_IOS(1_0_1);
+- (void)ddq_removeAllSubviews NS_AVAILABLE_IOS(1_0_1);
 
 @end
 
