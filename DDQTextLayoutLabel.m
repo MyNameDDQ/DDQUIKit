@@ -58,13 +58,6 @@
     
 }
 
-- (void)sizeToFit {
-    
-    CGSize fitSize = [self sizeThatFits:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)];
-    self.frame = CGRectMake(0.0, 0.0, fitSize.width, fitSize.height);
-    
-}
-
 - (CGSize)sizeThatFits:(CGSize)size {
     
     CGSize boundSize = CGSizeZero;
@@ -185,7 +178,7 @@
     [self.displayAttributes setObject:self.font.copy forKey:NSFontAttributeName];
     [self.displayAttributes setObject:self.textColor.copy forKey:NSForegroundColorAttributeName];
     [self.displayAttributes setObject:@(self.charSpacing) forKey:NSKernAttributeName];
-
+    
 }
 
 - (BOOL)label_checkIsNumber:(NSString *)str {
@@ -386,9 +379,7 @@
     
     __block CGFloat totalLength = 0.0;
     NSMutableString *containerString = [NSMutableString string];
-    NSDictionary *attributes = self.displayAttributes.copy;
-    CGSize boundSize = CGSizeMake(width, 50.0);
-    __block NSRange lastRange = NSMakeRange(0, 0);//用来记录上一次计算时开始的range
+    __block NSInteger lastIndex = 0;//用来记录上一次计算时开始的range
     __block BOOL finishIsNumber = NO;
     /*
      优点：
@@ -399,39 +390,63 @@
      他会跳过特殊字符，比如：@#$%^&(*()_+-=·！。只认识-，_这两个。
      这导致在计算过程中会比较麻烦
      
-     另外：NSTextContainer类，下方的label_getLinesArrayOfFitSize方法。计算也不能满足需求。
-     因为他们的本质都是利用的系统的文本绘制方式。
      */
     [text enumerateSubstringsInRange:NSMakeRange(0, text.length) options:NSStringEnumerationByWords usingBlock:^(NSString * _Nullable substring, NSRange substringRange, NSRange enclosingRange, BOOL * _Nonnull stop) {
         
         NSString *targetString = substring;
         //表示这次的字符的起点，减去上一次字符的总长度应该为0。不为0的话表示跳过了某些字符
-        NSInteger lastIndex = lastRange.location + lastRange.length;
         NSInteger remaindLength = substringRange.location - lastIndex;
         if (remaindLength >= 1) {//如果跳过了某些字符，那么本次先处理这些跳过的字符
             
-            targetString = [text substringWithRange:NSMakeRange(lastIndex, remaindLength)];
-            
+            NSString *jumpString = [text substringWithRange:NSMakeRange(lastIndex, remaindLength)];
+            CGSize jumpSize = [self label_boundTextSizeWithText:jumpString width:width];
+            totalLength += jumpSize.width;
+            if (totalLength > width) {//计算的总长度是否大于允许的最大宽度。
+                
+                totalLength -= jumpSize.width;
+                //遍历跳过的字符串
+                [jumpString enumerateSubstringsInRange:NSMakeRange(0, jumpString.length) options:NSStringEnumerationByComposedCharacterSequences usingBlock:^(NSString * _Nullable substring, NSRange substringRange, NSRange enclosingRange, BOOL * _Nonnull stop) {
+                    
+                    //一个字一个字的拆解，计算，拼接
+                    CGSize remaindSize = [self label_boundTextSizeWithText:substring width:width];
+                    totalLength += remaindSize.width;
+                    if (totalLength > width) {//还是得验证是否超长
+                        
+                        totalLength -= remaindSize.width;
+                        *stop = YES;
+                        
+                    } else {
+                        
+                        [containerString appendString:substring];
+                        lastIndex = containerString.length;
+                        
+                    }
+                }];
+            } else {
+                
+                [containerString appendString:jumpString];
+                lastIndex = containerString.length;
+                
+            }
         }
-        UILabel *label = [UILabel ddq_labelWithText:targetString attributes:self.displayAttributes textColor:nil font:nil];
-        [label sizeToFit];
-        CGSize subSize = label.bounds.size;
-        lastRange = ([substring isEqualToString:targetString]) ? substringRange : NSMakeRange(lastIndex, remaindLength);
         
+        //本次遍历的字符串
+        CGSize subSize = [self label_boundTextSizeWithText:substring width:width];
         totalLength += subSize.width;
-        if (totalLength > width) {
+        if (totalLength > width) {//本次计算后，文本是否超长
             
             totalLength -= subSize.width;
-            if ([self label_checkIsNumber:targetString] && self.lineBreakMode == NSLineBreakByWordWrapping) {//需求一：结尾为数字就折行
+            if ([self label_checkIsNumber:targetString] && self.lineBreakMode == NSLineBreakByWordWrapping) {//结尾为数字且设置成wordWrapping时就折行
                 
                 finishIsNumber = YES;
                 *stop = YES;
                 
             } else {
                 
+                //否则拆解拼接，流程同上
                 [targetString enumerateSubstringsInRange:NSMakeRange(0, targetString.length) options:NSStringEnumerationByComposedCharacterSequences usingBlock:^(NSString * _Nullable substring, NSRange substringRange, NSRange enclosingRange, BOOL * _Nonnull stop) {
                     
-                    CGSize remaindSize = [substring boundingRectWithSize:boundSize options:NSStringDrawingUsesFontLeading attributes:attributes context:nil].size;
+                    CGSize remaindSize = [self label_boundTextSizeWithText:substring width:width];
                     totalLength += remaindSize.width;
                     if (totalLength > width) {
                         
@@ -441,16 +456,15 @@
                     } else {
                         
                         [containerString appendString:substring];
+                        lastIndex = containerString.length;
                         
                     }
-                    
                 }];
-                *stop = YES;
-                
             }
         } else {
             
             [containerString appendString:targetString];
+            lastIndex = containerString.length;
             
         }
     }];
@@ -463,7 +477,7 @@
         //再把剩下的字符串单独进行计算，能够显示下的话就直接拼回去
         [remaindString enumerateSubstringsInRange:NSMakeRange(0, remaindString.length) options:NSStringEnumerationByComposedCharacterSequences usingBlock:^(NSString * _Nullable substring, NSRange substringRange, NSRange enclosingRange, BOOL * _Nonnull stop) {
             
-            CGSize remaindSize = [substring boundingRectWithSize:boundSize options:NSStringDrawingUsesFontLeading attributes:attributes context:nil].size;
+            CGSize remaindSize = [self label_boundTextSizeWithText:substring width:width];;
             totalLength += remaindSize.width;
             if (totalLength > width) {
                 
@@ -482,6 +496,18 @@
     remaindString = [text substringWithRange:NSMakeRange(subString.length, text.length - subString.length)];
     
     return @[subString, remaindString];
+    
+}
+
+/**
+ 计算文本的大小
+ 
+ @param text 文字内容
+ @return 大小
+ */
+- (CGSize)label_boundTextSizeWithText:(NSString *)text width:(CGFloat)width {
+    
+    return [text boundingRectWithSize:CGSizeMake(width, 50.0) options:NSStringDrawingUsesFontLeading attributes:self.displayAttributes.copy context:nil].size;
     
 }
 
