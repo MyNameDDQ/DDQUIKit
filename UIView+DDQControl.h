@@ -15,14 +15,17 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  这个大小适用于。button、field、textView、label
  */
-@property (nonatomic, readonly) CGFloat defaultFontSize;//15.0
++ (void)ddq_setDefaultFontSize:(CGFloat)fontSize;
++ (CGFloat)ddq_getDefaultFontSize;//default 15.0
+
 /**
  适用范围同上
  */
-@property (nonatomic, strong) UIColor *defaultTextColor;//r,g,b均为51.0
++ (void)ddq_setDefaultTextColor:(UIColor *)color;
++ (UIColor *)ddq_getDefaultTextColor;//r,g,b均为51.0
 
 /**
- 初始化方法
+ 初始化方法。适用于UIView及其子类
 
  @param color 默认的背景颜色为透明色
  */
@@ -35,8 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)ddq_addSubviews:(nullable NSArray<__kindof UIView *> *)subviews;
 - (void)ddq_removeSubviews:(nullable NSArray<__kindof UIView *> *)subviews;
-- (void)ddq_removeSubviewsWithClass:(Class)vClass NS_AVAILABLE_IOS(1_0_1);
-- (void)ddq_removeAllSubviews NS_AVAILABLE_IOS(1_0_1);
+- (void)ddq_removeSubviewsWithClass:(Class)vClass API_AVAILABLE(ios(1_0_1));
+- (void)ddq_removeAllSubviews API_AVAILABLE(ios(1_0_1));
+- (NSArray<__kindof UIView *> *)ddq_getSubviewsWithClass:(Class)vClass API_AVAILABLE(ios(1_0_4));
 
 @end
 
@@ -85,14 +89,14 @@ NS_ASSUME_NONNULL_BEGIN
  @param target 响应者
  @param selector 响应事件
  */
-+ (UIButton *)ddq_buttonWithTitle:(nullable NSString *)title titleColor:(UIColor *)tColor image:(nullable UIImage *)image events:(UIControlEvents)events target:(nullable id)target selector:(nullable SEL)selector;
++ (UIButton *)ddq_buttonWithTitle:(nullable NSString *)title titleColor:(nullable UIColor *)tColor image:(nullable UIImage *)image events:(UIControlEvents)events target:(nullable id)target selector:(nullable SEL)selector;
 /**
  与上面方法区别在于响应事件的形式不同。
  */
-+ (UIButton *)ddq_buttonWithTitle:(nullable NSString *)title titleColor:(UIColor *)tColor image:(nullable UIImage *)image events:(UIControlEvents)events action:(void(^)(UIButton *button))action;
++ (UIButton *)ddq_buttonWithTitle:(nullable NSString *)title titleColor:(nullable UIColor *)tColor image:(nullable UIImage *)image events:(UIControlEvents)events action:(void(^)(UIButton *button))action;
 
-+ (UIButton *)ddq_buttonWithTitle:(nullable NSString *)title titleColor:(UIColor *)tColor attributeString:(nullable NSAttributedString *)attribute image:(nullable UIImage *)image backgroundImage:(nullable UIImage *)bImage events:(UIControlEvents)events target:(nullable id)target selector:(nullable SEL)selector;
-+ (UIButton *)ddq_buttonWithTitle:(nullable NSString *)title titleColor:(UIColor *)tColor attributeString:(nullable NSAttributedString *)attribute image:(nullable UIImage *)image backgroundImage:(nullable UIImage *)bImage events:(UIControlEvents)events action:(void(^)(UIButton *button))action;
++ (UIButton *)ddq_buttonWithTitle:(nullable NSString *)title titleColor:(nullable UIColor *)tColor attributeString:(nullable NSAttributedString *)attribute image:(nullable UIImage *)image backgroundImage:(nullable UIImage *)bImage events:(UIControlEvents)events target:(nullable id)target selector:(nullable SEL)selector;
++ (UIButton *)ddq_buttonWithTitle:(nullable NSString *)title titleColor:(nullable UIColor *)tColor attributeString:(nullable NSAttributedString *)attribute image:(nullable UIImage *)image backgroundImage:(nullable UIImage *)bImage events:(UIControlEvents)events action:(void(^)(UIButton *button))action;
 
 @end
 

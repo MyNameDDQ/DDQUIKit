@@ -19,6 +19,7 @@ typedef NS_ENUM(NSUInteger, DDQTextLayoutLabelStyle) {
 
 /**
  文本布局视图。避免了系统文本布局断行时，导致的留白过多的问题。
+ 但是这个类暂时不能支持\n。
  */
 @interface DDQTextLayoutLabel : DDQView
 
@@ -40,6 +41,8 @@ typedef NS_ENUM(NSUInteger, DDQTextLayoutLabelStyle) {
 @property (nonatomic, assign) NSLineBreakMode lineBreakMode;//defalut NSLineBreakByWordWrapping
 @property (nonatomic, assign) NSInteger numberOfLines;//default 2
 
+@property (nonatomic, assign) CGFloat lineHeight;//NSParagraphStyleAttributeName 将影响此属性
+@property (nonatomic, assign) CGFloat kern;//NSKernAttributeName 将影响此属性
 @property (nonatomic, readonly) NSDictionary *defaultAttributes;//默认的字符串属性
 
 @end

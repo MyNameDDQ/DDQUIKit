@@ -146,7 +146,7 @@
             break;
     }
     
-    return BQScreenScaleMaker(wScale, hScale);
+    return DDQScreenScaleMaker(wScale, hScale);
     
 }
 

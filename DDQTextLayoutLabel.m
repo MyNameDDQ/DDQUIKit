@@ -14,9 +14,7 @@
 
 @interface DDQTextLayoutLabel ()
 
-@property (nonatomic, assign) CGFloat lineHeight;
 @property (nonatomic, strong) NSMutableArray<UILabel *> *labels;
-@property (nonatomic, assign) CGFloat charSpacing;
 @property (nonatomic, strong) NSMutableDictionary *displayAttributes;
 @property (nonatomic, assign) DDQTextLayoutLabelStyle style;
 
@@ -172,12 +170,12 @@
     self.font = DDQFontWithSize(17.0);
     self.textColor = DDQColorWithRGB(51.0, 51.0, 51.0);
     self.lineHeight = 5.0;
-    self.charSpacing = 1.0;
+    self.kern = 1.0;
     
     self.displayAttributes = [NSMutableDictionary dictionary];
     [self.displayAttributes setObject:self.font.copy forKey:NSFontAttributeName];
     [self.displayAttributes setObject:self.textColor.copy forKey:NSForegroundColorAttributeName];
-    [self.displayAttributes setObject:@(self.charSpacing) forKey:NSKernAttributeName];
+    [self.displayAttributes setObject:@(self.kern) forKey:NSKernAttributeName];
     
 }
 
@@ -213,7 +211,7 @@
 - (BOOL)label_isFloat:(NSString *)str {
     
     NSScanner *scanner = [NSScanner scannerWithString:str];
-    float f = 0;
+    float f = 0.0;
     return [scanner scanFloat:&f] && [scanner isAtEnd];
     
 }
@@ -226,7 +224,7 @@
 - (BOOL)label_isDouble:(NSString *)str {
     
     NSScanner *scanner = [NSScanner scannerWithString:str];
-    double d = 0;
+    double d = 0.0;
     return [scanner scanDouble:&d] && [scanner isAtEnd];
     
 }
@@ -281,8 +279,8 @@
     
     if (attributes[NSKernAttributeName]) {
         
-        self.charSpacing = [attributes[NSKernAttributeName] floatValue];
-        [self.displayAttributes setObject:@(self.charSpacing) forKey:NSKernAttributeName];
+        self.kern = [attributes[NSKernAttributeName] floatValue];
+        [self.displayAttributes setObject:@(self.kern) forKey:NSKernAttributeName];
         
     }
     
@@ -460,8 +458,6 @@
                         
                     }
                 }];
-                *stop = YES;
-
             }
         } else {
             

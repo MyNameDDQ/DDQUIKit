@@ -13,20 +13,35 @@
 @implementation UIView (DDQControl)
 
 static const char * DefaultTextColorKey = "defaultTextColor";
+static const char * DefaultFontSizeKey = "defaultFontSize";
 
-- (CGFloat)defaultFontSize {
++ (void)ddq_setDefaultFontSize:(CGFloat)fontSize {
     
-    return 15.0;
+    objc_setAssociatedObject(self, DefaultFontSizeKey, @(fontSize).stringValue, OBJC_ASSOCIATION_COPY);
     
 }
 
-- (void)setDefaultTextColor:(UIColor *)defaultTextColor {
++ (CGFloat)ddq_getDefaultFontSize {
     
-    objc_setAssociatedObject(self, DefaultTextColorKey, defaultTextColor, OBJC_ASSOCIATION_RETAIN);
+    NSString *font = objc_getAssociatedObject(self, DefaultFontSizeKey);
+    if (!font) {
+        
+        return 15.0;
+        
+    }
+    return font.floatValue;
     
 }
 
-- (UIColor *)defaultTextColor {
+
+
++ (void)ddq_setDefaultTextColor:(UIColor *)color {
+    
+    objc_setAssociatedObject(self, DefaultTextColorKey, color, OBJC_ASSOCIATION_RETAIN);
+    
+}
+
++ (UIColor *)ddq_getDefaultTextColor {
     
     id object = objc_getAssociatedObject(self, DefaultTextColorKey);
     if (!object) {
@@ -45,6 +60,9 @@ static const char * DefaultTextColorKey = "defaultTextColor";
 }
 
 + (instancetype)ddq_controlWithBackgroundColor:(UIColor *)color {
+    
+    if (![self isKindOfClass:[NSObject class]])
+        return nil;
     
     id control = ([self respondsToSelector:@selector(initWithFrame:)]) ? [[self alloc] initWithFrame:CGRectZero] : [[self alloc] init];
     if ([control respondsToSelector:@selector(setBackgroundColor:)]) {
@@ -145,6 +163,18 @@ static const char * DefaultTextColorKey = "defaultTextColor";
     
 }
 
+- (NSArray<UIView *> *)ddq_getSubviewsWithClass:(Class)vClass {
+    
+    if (!vClass || ![vClass isSubclassOfClass:UIView.class]) {
+        return @[];
+    }
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"class == %@", vClass];
+    NSArray<__kindof UIView *> *views = [self.subviews filteredArrayUsingPredicate:predicate];
+    return views;
+    
+}
+
 @end
 
 
@@ -155,8 +185,8 @@ static const char * DefaultTextColorKey = "defaultTextColor";
     UILabel *label = [self.class ddq_control];
     label.numberOfLines = 0;
     label.userInteractionEnabled = YES;
-    label.font = [UIFont systemFontOfSize:label.defaultFontSize];
-    label.textColor = label.defaultTextColor;
+    label.font = [UIFont systemFontOfSize:[self ddq_getDefaultFontSize]];
+    label.textColor = [self ddq_getDefaultTextColor];
     return label;
     
 }
@@ -174,6 +204,10 @@ static const char * DefaultTextColorKey = "defaultTextColor";
         
         NSAttributedString *attributeString = [[NSAttributedString alloc] initWithString:text attributes:attributes];
         label.attributedText = attributeString;
+        
+    } else {
+        
+        label.text = text;
         
     }
     
@@ -226,8 +260,8 @@ static const char * DefaultTextColorKey = "defaultTextColor";
 + (UIButton *)ddq_button {
     
     UIButton *button = [self.class ddq_control];
-    button.titleLabel.font = [UIFont systemFontOfSize:button.defaultFontSize];
-    [button setTitleColor:button.defaultTextColor forState:UIControlStateNormal];
+    button.titleLabel.font = [UIFont systemFontOfSize:[self ddq_getDefaultFontSize]];
+    [button setTitleColor:[self ddq_getDefaultTextColor] forState:UIControlStateNormal];
     return button;
     
 }
@@ -241,7 +275,7 @@ static const char * DefaultTextColorKey = "defaultTextColor";
 + (UIButton *)ddq_buttonWithTitle:(NSString *)title titleColor:(UIColor *)tColor attributeString:(NSAttributedString *)attribute image:(UIImage *)image backgroundImage:(UIImage *)bImage events:(UIControlEvents)events action:(void (^)(UIButton * _Nonnull))action {
     
     UIButton *button = [self.class ddq_button];
-    [button ddq_handleButtonWithImage:image backgroundImage:nil textColor:tColor attributeString:nil title:title];
+    [button ddq_handleButtonWithImage:image backgroundImage:bImage textColor:tColor attributeString:attribute title:title];
     if (action) {
         
         [button addBlockForControlEvents:events block:^(id  _Nonnull sender) {
@@ -291,8 +325,8 @@ static const char * DefaultTextColorKey = "defaultTextColor";
 + (UITextField *)ddq_textField {
     
     UITextField *field = [self.class ddq_control];
-    field.textColor = field.defaultTextColor;
-    field.font = [UIFont systemFontOfSize:field.defaultFontSize];
+    field.textColor = [self ddq_getDefaultTextColor];
+    field.font = [UIFont systemFontOfSize:[self ddq_getDefaultFontSize]];
     return field;
 
 }
@@ -308,19 +342,19 @@ static const char * DefaultTextColorKey = "defaultTextColor";
     UITextField *field = [UITextField ddq_textField];
     if (tColor) field.textColor = tColor;
     if (font) field.font = font;
-    if (placeholder) field.placeholder = placeholder;
+    if (placeholder.length > 0) field.placeholder = placeholder;
     if (field.placeholder.length > 0 && pAttributes) {
         
         NSMutableDictionary *attributes = pAttributes.mutableCopy;
         if (![attributes containsObjectForKey:NSFontAttributeName]) {
             
-            [attributes setObject:[UIFont systemFontOfSize:field.defaultFontSize] forKey:NSFontAttributeName];
+            [attributes setObject:[UIFont systemFontOfSize:[self ddq_getDefaultFontSize]] forKey:NSFontAttributeName];
             
         }
         
         if (![attributes containsObjectForKey:NSForegroundColorAttributeName]) {
             
-            [attributes setObject:field.defaultTextColor forKey:NSForegroundColorAttributeName];
+            [attributes setObject:[self ddq_getDefaultTextColor] forKey:NSForegroundColorAttributeName];
             
         }
         NSAttributedString *placeholderAttributes = [[NSAttributedString alloc] initWithString:field.placeholder attributes:attributes.copy];
@@ -455,8 +489,8 @@ static const char * DefaultTextColorKey = "defaultTextColor";
     
     UITextView *textView = container ? [[UITextView alloc] initWithFrame:CGRectZero textContainer:container] : [UITextView ddq_control];
     if (delegate) textView.delegate = delegate;
-    textView.font = [UIFont systemFontOfSize:textView.defaultFontSize];
-    textView.textColor = textView.defaultTextColor;
+    textView.font = [UIFont systemFontOfSize:[self ddq_getDefaultFontSize]];
+    textView.textColor = [self ddq_getDefaultTextColor];
     
     return textView;
     

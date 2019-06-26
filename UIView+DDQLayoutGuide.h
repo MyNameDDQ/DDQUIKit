@@ -30,8 +30,8 @@ struct DDQScreenScale {
 };
 typedef struct DDQScreenScale DDQScreenScale;
 
-UIKIT_STATIC_INLINE DDQScreenScale BQScreenScaleMaker(CGFloat w, CGFloat h);
-UIKIT_STATIC_INLINE NSString * _Nonnull BQStringFromScale(DDQScreenScale scale);
+UIKIT_STATIC_INLINE DDQScreenScale DDQScreenScaleMaker(CGFloat w, CGFloat h);
+UIKIT_STATIC_INLINE NSString * _Nonnull DDQStringFromScale(DDQScreenScale scale);
 
 UIKIT_STATIC_INLINE UIFont * _Nonnull DDQFontWithSize(CGFloat fSize);
 UIKIT_STATIC_INLINE UIImage * _Nullable DDQImageWithName(NSString *_Nullable name);
@@ -76,13 +76,13 @@ UIKIT_STATIC_INLINE UIColor * _Nonnull DDQColorWithHexAC(NSString *hex, CGFloat 
 @end
 
 #pragma mark - Function IMP
-UIKIT_STATIC_INLINE DDQScreenScale BQScreenScaleMaker(CGFloat w, CGFloat h) {
+UIKIT_STATIC_INLINE DDQScreenScale DDQScreenScaleMaker(CGFloat w, CGFloat h) {
     
     DDQScreenScale scale; scale.widthScale = w; scale.heightScale = h; return scale;
     
 }
 
-UIKIT_STATIC_INLINE NSString * _Nonnull BQStringFromScale(DDQScreenScale scale) {
+UIKIT_STATIC_INLINE NSString * _Nonnull DDQStringFromScale(DDQScreenScale scale) {
     
     return [NSString stringWithFormat:@"<widthScale = %f; heightScale = %f>", scale.widthScale, scale.heightScale];
     
