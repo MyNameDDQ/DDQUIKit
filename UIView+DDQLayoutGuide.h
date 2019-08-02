@@ -22,6 +22,15 @@ typedef NS_ENUM(NSUInteger, DDQScreenVersionType) {
     
 };
 
+typedef NS_ENUM(NSUInteger, DDQScreenVersionTypeForPad) {
+    
+    DDQScreenVersionTypeForPadNormal,           //默认设备型号，以9.7英寸为主
+    DDQScreenVersionTypeForPad9_7Inch,          //1536 * 2048
+    DDQScreenVersionTypeForPad10_5Inch,         //1668 * 2224。11寸屏也可以用这个
+    DDQScreenVersionTypeForPad12_9Inch,         //2048 * 2732
+    
+} NS_AVAILABLE_IOS(1_0_3);
+
 struct DDQScreenScale {
     
     CGFloat widthScale;
@@ -67,6 +76,14 @@ UIKIT_STATIC_INLINE UIColor * _Nonnull DDQColorWithHexAC(NSString *hex, CGFloat 
  @return 宽高比
  */
 + (DDQScreenScale)ddq_getScreenScaleWithType:(DDQScreenVersionType)type;
+
+/**
+ 获取当前pad屏幕宽高比
+
+ @param type 以什么设备为比例基础
+ @return 宽高比
+ */
++ (DDQScreenScale)ddq_getScreenScaleWithTypeForPad:(DDQScreenVersionTypeForPad)type NS_AVAILABLE_IOS(1_0_3);
 
 /**
  获取当前设备的型号

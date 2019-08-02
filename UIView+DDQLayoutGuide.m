@@ -150,4 +150,36 @@
     
 }
 
++ (DDQScreenScale)ddq_getScreenScaleWithTypeForPad:(DDQScreenVersionTypeForPad)type {
+    
+    CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+    CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
+    CGFloat wScale = screenWidth / 768.0;
+    CGFloat hScale = screenHeight / 1024.0;
+    
+    switch (type) {
+                    
+        case DDQScreenVersionTypeForPad9_7Inch:
+            wScale = screenWidth / 768.0;
+            hScale = screenHeight / 1024.0;
+            break;
+
+        case DDQScreenVersionTypeForPad10_5Inch:
+            wScale = screenWidth / 834.0;
+            hScale = screenHeight / 1112.0;
+            break;
+            
+        case DDQScreenVersionTypeForPad12_9Inch:
+            wScale = screenWidth / 1024.0;
+            hScale = screenHeight / 1336.0;
+            break;
+
+        default:
+            break;
+    }
+
+    return DDQScreenScaleMaker(wScale, hScale);
+    
+}
+
 @end
